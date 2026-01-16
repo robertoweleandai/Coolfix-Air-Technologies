@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { FIBER_PACKAGES, HOTSPOT_PACKAGES, NETWORKING_SERVICES, CONSULTING_SERVICES } from './constants';
@@ -11,14 +11,12 @@ import TermsModal from './components/TermsModal';
 const PORTAL_URL = "https://coolfixairtechnologies.centipidtechnologies.com/login";
 const HQ_POSITION: [number, number] = [-1.2598, 36.8041];
 
-// Simulated Technicians near HQ
 const INITIAL_TECHS = [
   { id: 1, pos: [-1.2550, 36.8080] as [number, number], name: "Tech Alpha - Node 04" },
   { id: 2, pos: [-1.2650, 36.7950] as [number, number], name: "Tech Bravo - Sector Delta" },
   { id: 3, pos: [-1.2500, 36.7900] as [number, number], name: "Tech Gamma - Backbone Sync" },
 ];
 
-// Custom Leaflet Icons
 const hqIcon = L.divIcon({
   className: 'custom-div-icon',
   html: `<div class="w-10 h-10 bg-cyan-600 rounded-full border-4 border-slate-950 shadow-[0_0_30px_rgba(6,182,212,0.8)] flex items-center justify-center text-white text-[10px] font-black animate-pulse">HQ</div>`,
@@ -33,7 +31,6 @@ const techIcon = L.divIcon({
   iconAnchor: [12, 12]
 });
 
-// Component to handle map centering and bounds if needed
 const MapController = ({ center }: { center: [number, number] }) => {
   const map = useMap();
   useEffect(() => {
@@ -42,13 +39,17 @@ const MapController = ({ center }: { center: [number, number] }) => {
   return null;
 };
 
+/**
+ * Added key to PackageCardProps to resolve TypeScript error on lines 260 and 276
+ */
 interface PackageCardProps {
+  key?: React.Key;
   pkg: InternetPackage;
   onProvision: (pkg: InternetPackage) => void;
   onOrder: (pkg: InternetPackage) => void;
 }
 
-const PackageCard: React.FC<PackageCardProps> = ({ pkg, onProvision, onOrder }) => (
+const PackageCard = ({ pkg, onProvision, onOrder }: PackageCardProps) => (
   <div className={`relative p-10 rounded-[3.5rem] bg-slate-900/60 border transition-all duration-700 flex flex-col h-full group ${pkg.isPopular ? 'border-cyan-500 shadow-[0_0_80px_-20px_rgba(6,182,212,0.4)] scale-105 z-10' : 'border-white/5 hover:border-white/10'}`}>
     <div className="mb-10 flex justify-between items-start">
       <div>
@@ -86,7 +87,7 @@ const PackageCard: React.FC<PackageCardProps> = ({ pkg, onProvision, onOrder }) 
   </div>
 );
 
-const App: React.FC = () => {
+const App = () => {
   const [activeSection, setActiveSection] = useState<AppView>('home');
   const [selectedPkg, setSelectedPkg] = useState<InternetPackage | null>(null);
   const [pendingPkgTerms, setPendingPkgTerms] = useState<InternetPackage | null>(null);
@@ -95,19 +96,14 @@ const App: React.FC = () => {
   const [aiAssistantQuery, setAiAssistantQuery] = useState<string | null>(null);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
 
-  // Technician Simulation State
   const [technicians, setTechnicians] = useState(INITIAL_TECHS);
-
-  // Form State
   const [formSent, setFormSent] = useState(false);
 
-  // Tracking State
   const [trackId, setTrackId] = useState('');
   const [isTracking, setIsTracking] = useState(false);
   const [trackResult, setTrackResult] = useState<{status: string, message: string, stage: number} | null>(null);
   const [displayStage, setDisplayStage] = useState(0);
 
-  // Simulate moving technicians
   useEffect(() => {
     const interval = setInterval(() => {
       setTechnicians(current => 
@@ -410,7 +406,6 @@ const App: React.FC = () => {
       </div>
 
       <div className="grid lg:grid-cols-12 gap-12 items-start">
-        {/* Contact Form Terminal */}
         <div className="lg:col-span-7 bg-slate-900/60 border border-white/5 rounded-[4rem] p-12 shadow-3xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-10">
             <i className="fa-solid fa-satellite text-cyan-500/10 text-7xl group-hover:text-cyan-500/20 transition-all duration-1000 group-hover:rotate-12"></i>
@@ -468,9 +463,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Info & Live Map Terminal */}
         <div className="lg:col-span-5 space-y-12">
-          {/* Enhanced Quick Contact Terminal */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-8">
             <a href="tel:0712156070" className="group bg-slate-900/60 border border-white/5 p-12 rounded-[4rem] flex items-center gap-10 shadow-3xl transition-all hover:border-cyan-500/50 hover:bg-slate-900/80 active:scale-95">
               <div className="w-20 h-20 bg-cyan-600/10 rounded-3xl flex items-center justify-center text-cyan-400 text-4xl shadow-inner group-hover:bg-cyan-500/20 transition-all group-hover:rotate-12">
@@ -493,7 +486,6 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Geospatial Real-Time Terminal */}
           <div className="bg-slate-900/60 border border-white/5 rounded-[4.5rem] p-12 shadow-3xl relative overflow-hidden">
             <div className="flex justify-between items-center mb-10">
               <h4 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-5">
@@ -511,7 +503,6 @@ const App: React.FC = () => {
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <MapController center={HQ_POSITION} />
                 
-                {/* HQ Marker */}
                 <Marker position={HQ_POSITION} icon={hqIcon}>
                   <Popup className="custom-popup">
                     <div className="p-4 bg-slate-900 text-white rounded-xl">
@@ -521,7 +512,6 @@ const App: React.FC = () => {
                   </Popup>
                 </Marker>
 
-                {/* Technician Markers */}
                 {technicians.map(tech => (
                   <Marker key={tech.id} position={tech.pos} icon={techIcon}>
                     <Popup>

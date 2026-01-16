@@ -9,10 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-dom": "^19.2.3",
     "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "@google/genai": "^1.37.0",
-    "recharts": "^3.6.0",
+    "recharts": "^2.12.7",
     "leaflet": "^1.9.4",
     "react-leaflet": "^4.2.1"
   },

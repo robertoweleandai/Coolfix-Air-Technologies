@@ -13,7 +13,7 @@ interface AirAssistantProps {
   onVoiceToggle?: (val: boolean) => void;
 }
 
-const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandled, isVoiceEnabled = true, onVoiceToggle }) => {
+const AirAssistant = ({ externalQuery, onQueryHandled, isVoiceEnabled = true, onVoiceToggle }: AirAssistantProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isWhatsAppMode, setIsWhatsAppMode] = useState(false);
   const [isLiveActive, setIsLiveActive] = useState(false);
@@ -199,7 +199,6 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
     <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end">
       {isOpen && (
         <div className="mb-6 w-[380px] sm:w-[440px] h-[680px] bg-slate-900 border border-white/10 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden glass-effect animate-in slide-in-from-bottom-12 duration-500">
-          {/* Brand Header */}
           <div className={`p-8 bg-gradient-to-br flex flex-col gap-6 ${isWhatsAppMode ? 'from-emerald-600/90 to-teal-800/90' : 'from-slate-800 via-slate-900 to-black'}`}>
             <div className="flex justify-between items-start">
               <div className="flex items-center space-x-5">
@@ -225,15 +224,12 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
                 </button>
               </div>
             </div>
-
-            {/* Backbone Status Bar */}
             <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-[0.2em] text-white/40 border-t border-white/5 pt-4">
                <span>Pkt loss: 0.00%</span>
                <span className="text-cyan-500/60">Lat: 14ms</span>
                <span>Uplink: Synchronized</span>
             </div>
           </div>
-
           <div className="flex-1 flex flex-col overflow-hidden relative bg-slate-950/40">
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
               {messages.map((m, i) => (
@@ -257,8 +253,6 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
                 </div>
               )}
             </div>
-
-            {/* Quick Actions as "Command Modules" */}
             {!isTyping && (
               <div className="px-8 py-4 flex flex-wrap gap-3 animate-in fade-in slide-in-from-bottom-6 duration-700">
                 {quickActions.map((action, idx) => (
@@ -273,7 +267,6 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
                 ))}
               </div>
             )}
-
             <div className="p-8 bg-slate-900/80 border-t border-white/5 space-y-6 backdrop-blur-xl">
               {isWhatsAppMode && (
                 <button 
@@ -314,8 +307,6 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
           </div>
         </div>
       )}
-
-      {/* Main Toggle Button */}
       <button 
         onClick={() => { setIsOpen(!isOpen); initAudio(); }} 
         className={`w-24 h-24 rounded-[2.5rem] flex items-center justify-center text-4xl shadow-3xl transition-all active:scale-90 group relative overflow-hidden ${

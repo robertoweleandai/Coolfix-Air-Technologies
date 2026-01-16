@@ -9,7 +9,7 @@ interface PaymentModalProps {
   onSuccess: (method: PaymentMethod) => void;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({ pkg, onClose, onSuccess }) => {
+const PaymentModal = ({ pkg, onClose, onSuccess }: PaymentModalProps) => {
   const [method, setMethod] = useState<PaymentMethod>(PaymentMethod.MPESA);
   const [step, setStep] = useState<'details' | 'processing' | 'verifying' | 'done'>('details');
   const [showFullTerms, setShowFullTerms] = useState(false);
@@ -33,7 +33,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ pkg, onClose, onSuccess }) 
     
     if (method === PaymentMethod.MPESA) {
       await initiateMpesaPayment(phone, pkg.price);
-      // Automatically transition to verification after a delay as if the user clicked "I have paid"
       setTimeout(() => setStep('verifying'), 5000);
     } else {
       await processCardPayment({}, pkg.price);
@@ -173,7 +172,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ pkg, onClose, onSuccess }) 
                 </div>
               )}
 
-              {/* Mandatory T&C Agreement */}
               <div className="flex items-start space-x-4 p-5 bg-slate-800/40 rounded-3xl border border-white/5">
                 <div className="relative flex items-center">
                   <input 
