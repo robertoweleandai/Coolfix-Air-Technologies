@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
         html {
             scroll-behavior: smooth;
@@ -78,6 +79,27 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #0891b2;
         }
+
+        /* Leaflet Dark Theme Overrides */
+        .leaflet-container {
+            background: #020617 !important;
+            border-radius: 2rem;
+        }
+        .leaflet-tile {
+            filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+        }
+        .leaflet-control-attribution {
+            background: rgba(15, 23, 42, 0.5) !important;
+            color: #64748b !important;
+            font-size: 8px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .leaflet-bar a {
+            background-color: #0f172a !important;
+            color: #06b6d4 !important;
+            border-bottom: 1px solid #1e293b !important;
+        }
     </style>
 <script type="importmap">
 {
@@ -86,7 +108,9 @@
     "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
     "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
-    "recharts": "https://esm.sh/recharts@^3.6.0"
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "leaflet": "https://esm.sh/leaflet@^1.9.4",
+    "react-leaflet": "https://esm.sh/react-leaflet@^4.2.1"
   }
 }
 </script>

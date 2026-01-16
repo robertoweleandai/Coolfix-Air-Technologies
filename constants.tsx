@@ -13,22 +13,22 @@ export const FIBER_PACKAGES: InternetPackage[] = [
 ];
 
 export const HOTSPOT_PACKAGES: InternetPackage[] = [
-  { id: 'kumi-1h', name: 'Kumi Unlimited', price: 10, speed: '', duration: '1 Hour', type: 'Hotspot', devices: 2, color: 'slate', features: ['Instant Access', '2 Devices'] },
-  { id: 'mbao-2h', name: 'Mbao 2.5 Hours', price: 20, speed: '', duration: '2.5 Hours', type: 'Hotspot', devices: 2, color: 'emerald', features: ['Instant Access', '2 Devices'] },
-  { id: 'chuani-8h', name: 'Chuani 8 Hour', price: 50, speed: '', duration: '8 Hours', type: 'Hotspot', devices: 3, color: 'blue', features: ['Instant Access', '3 Devices'] },
-  { id: 'daily-unlim', name: 'Daily Unlimited', price: 80, speed: '', duration: '1 Day', type: 'Hotspot', devices: 3, color: 'cyan', features: ['Instant Access', '3 Devices'] },
-  { id: 'weekly-solo', name: 'Weekly Solo', price: 280, speed: '', duration: '7 Days', type: 'Hotspot', devices: 1, color: 'indigo', features: ['High Speed Access', 'Solo User'] },
-  { id: 'weekly-duo', name: 'Weekly Duo', price: 380, speed: '', duration: '7 Days', type: 'Hotspot', devices: 2, color: 'violet', features: ['High Speed Access', '2 Devices'] },
-  { id: 'weekly-trio', name: 'Weekly Trio', price: 400, speed: '', duration: '7 Days', type: 'Hotspot', devices: 3, color: 'rose', isPopular: true, features: ['High Speed Access', '3 Devices'] },
-  { id: 'bi-weekly', name: 'Bi-Weekly Trio', price: 550, speed: '', duration: '14 Days', type: 'Hotspot', devices: 3, color: 'amber', features: ['High Speed Access', '3 Devices'] },
-  { id: 'monthly-solo', name: 'Monthly Solo', price: 1000, speed: '', duration: '1 Month', type: 'Hotspot', devices: 1, color: 'fuchsia', features: ['High Speed Access', 'Full Month'] },
+  { id: 'hs-kumi', name: 'Kumi Unlimited', price: 10, speed: '', duration: '1 Hour', type: 'Hotspot', devices: 2, color: 'slate', features: ['Unlimited 2 Devices', 'Instant Activation', 'Shield Protected'] },
+  { id: 'hs-mbao', name: 'Mbao Unlimited', price: 20, speed: '', duration: '2.5 Hours', type: 'Hotspot', devices: 2, color: 'emerald', features: ['Unlimited Access', '2 Devices', 'Shield Protected'] },
+  { id: 'hs-chuani', name: 'Chuani Unlimited', price: 50, speed: '', duration: '8 Hours', type: 'Hotspot', devices: 3, color: 'blue', features: ['Unlimited 3 Devices', 'Instant Activation', 'Shield Protected'] },
+  { id: 'hs-daily', name: 'Daily Unlimited', price: 80, speed: '', duration: '1 Day', type: 'Hotspot', devices: 3, color: 'cyan', features: ['24 Hour Access', '3 Devices', 'Shield Protected'] },
+  { id: 'hs-weekly-solo', name: 'Weekly Solo', price: 280, speed: '', duration: '7 Days', type: 'Hotspot', devices: 1, color: 'indigo', features: ['Solo Account', '7 Day Access', 'Shield Protected'] },
+  { id: 'hs-weekly-duo', name: 'Weekly Duo', price: 380, speed: '', duration: '7 Days', type: 'Hotspot', devices: 2, color: 'violet', features: ['Dual Account', '7 Day Access', 'Shield Protected'] },
+  { id: 'hs-weekly-trio', name: 'Weekly Trio', price: 400, speed: '', duration: '7 Days', type: 'Hotspot', devices: 3, color: 'rose', isPopular: true, features: ['Trio Account', '7 Day Access', 'Shield Protected'] },
+  { id: 'hs-biweekly', name: 'Bi-Weekly Unlimited', price: 550, speed: '', duration: '14 Days', type: 'Hotspot', devices: 3, color: 'amber', features: ['14 Day Access', '3 Devices', 'Shield Protected'] },
+  { id: 'hs-monthly-solo', name: 'Monthly Solo', price: 1000, speed: '', duration: '1 Month', type: 'Hotspot', devices: 1, color: 'fuchsia', features: ['Monthly Account', 'Solo User', 'Shield Protected'] },
 ];
 
 export const NETWORKING_SERVICES = [
   {
     title: 'Cable Crimping & Termination',
     icon: 'fa-network-wired',
-    image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&q=80&w=800',
+    image: 'https://images.unsplash.com/photo-1596207891316-23851be3cc20?auto=format&fit=crop&q=80&w=800',
     desc: 'Precision termination for CAT6/7 infrastructure. We ensure zero packet loss through certified RJ45 crimping and rigorous throughput testing.',
     specs: ['Fluke Certified', 'Gold-Plated Tips', 'T568B Standard']
   },
