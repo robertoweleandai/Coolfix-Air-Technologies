@@ -13,15 +13,15 @@ export const FIBER_PACKAGES: InternetPackage[] = [
 ];
 
 export const HOTSPOT_PACKAGES: InternetPackage[] = [
-  { id: 'hs-kumi', name: 'Kumi, Unlimited 2 Devices', price: 10, speed: '', duration: '1 Hour', type: 'Hotspot', devices: 2, color: 'slate', features: ['Unlimited Access', '2 Devices', 'Shield Protected'] },
-  { id: 'hs-mbao', name: 'Mbao, 2 Hours 30 mins', price: 20, speed: '', duration: '2 Hours 30 Minutes', type: 'Hotspot', devices: 2, color: 'emerald', features: ['2.5 Hour Access', '2 Devices', 'Shield Protected'] },
-  { id: 'hs-chuani', name: 'Chuani, 8 Hour Unlimited', price: 50, speed: '', duration: '8 Hours', type: 'Hotspot', devices: 3, color: 'blue', features: ['8 Hour Unlimited', '3 Devices', 'Shield Protected'] },
-  { id: 'hs-daily', name: 'DAILY Unlimited Internet', price: 80, speed: '', duration: '1 Day', type: 'Hotspot', devices: 3, color: 'cyan', isPopular: true, features: ['24 Hour Access', '3 Devices', 'Shield Protected'] },
-  { id: 'hs-weekly-solo', name: 'WEEKLY SOLO Unlimited', price: 280, speed: '', duration: '7 Days', type: 'Hotspot', devices: 1, color: 'indigo', features: ['Solo Unlimited', '7 Day Access', 'Shield Protected'] },
-  { id: 'hs-weekly-trio', name: 'WEEKLY TRIO Unlimited', price: 400, speed: '', duration: '7 Days', type: 'Hotspot', devices: 3, color: 'rose', features: ['Trio Unlimited', '7 Day Access', 'Shield Protected'] },
-  { id: 'hs-weekly-duo', name: 'WEEKLY DUO Unlimited', price: 380, speed: '', duration: '7 Days', type: 'Hotspot', devices: 2, color: 'violet', features: ['Duo Unlimited', '7 Day Access', 'Shield Protected'] },
-  { id: 'hs-monthly-solo', name: 'MONTHLY SOLO Unlimited', price: 1000, speed: '', duration: '1 Month', type: 'Hotspot', devices: 1, color: 'fuchsia', features: ['Monthly Solo Unlimited', '1 Month Access', 'Shield Protected'] },
-  { id: 'hs-biweekly', name: 'Bi-Weekly, Unlimited', price: 550, speed: '', duration: '14 Days', type: 'Hotspot', devices: 3, color: 'amber', features: ['14 Day Access', '3 Devices', 'Shield Protected'] },
+  { id: 'hs-kumi', name: 'Kumi, Unlimited', price: 10, speed: '10M/10M', duration: '1 Hour', type: 'Hotspot', devices: 2, color: 'slate', features: ['Unlimited Access', '10M/10M Burst', '2 Devices Supported'] },
+  { id: 'hs-mbao', name: 'Mbao, 2 Hours 30 mins', price: 20, speed: '10M/10M', duration: '2 Hours 30 Minutes', type: 'Hotspot', devices: 2, color: 'emerald', features: ['10M/10M Burst', '2 Devices Supported', 'Shield Protected'] },
+  { id: 'hs-chuani', name: 'Chuani, 8 Hour Unlimited', price: 50, speed: '10M/10M', duration: '8 Hours', type: 'Hotspot', devices: 3, color: 'blue', features: ['8 Hour Duration', '10M/10M Burst', '3 Devices Supported'] },
+  { id: 'hs-daily', name: 'DAILY Unlimited Internet', price: 80, speed: '10M/10M', duration: '1 Day', type: 'Hotspot', devices: 3, color: 'cyan', isPopular: true, features: ['24 Hour Access', '10M/10M Burst', '3 Devices Supported'] },
+  { id: 'hs-weekly-solo', name: 'WEEKLY SOLO Unlimited', price: 280, speed: '90M/90M', duration: '7 Days', type: 'Hotspot', devices: 1, color: 'indigo', features: ['90M/90M High Fidelity', '7 Day Solo Access', 'Priority Support'] },
+  { id: 'hs-weekly-duo', name: 'WEEKLY DUO Unlimited', price: 380, speed: '90M/90M', duration: '7 Days', type: 'Hotspot', devices: 2, color: 'violet', features: ['90M/90M High Fidelity', '7 Day Duo Access', 'Shield Protected'] },
+  { id: 'hs-weekly-trio', name: 'WEEKLY TRIO Unlimited', price: 400, speed: '90M/90M', duration: '7 Days', type: 'Hotspot', devices: 3, color: 'rose', features: ['90M/90M High Fidelity', '7 Day Trio Access', 'Shield Protected'] },
+  { id: 'hs-biweekly', name: 'Bi-Weekly, Unlimited', price: 550, speed: '90M/90M', duration: '14 Days', type: 'Hotspot', devices: 3, color: 'amber', features: ['14 Day Access', '90M/90M High Fidelity', '3 Devices Supported'] },
+  { id: 'hs-monthly-solo', name: 'MONTHLY SOLO Unlimited', price: 1000, speed: '90M/90M', duration: '1 Month', type: 'Hotspot', devices: 1, color: 'fuchsia', features: ['1 Month Duration', '90M/90M High Fidelity', 'Solo Protocol'] },
 ];
 
 export const NETWORKING_SERVICES = [
