@@ -7,18 +7,20 @@ import { getAirAssistantResponse, generateSpeech, decode, encode, decodeAudioDat
 interface AirAssistantProps {
   externalQuery?: string | null;
   onQueryHandled?: () => void;
+  isVoiceEnabled?: boolean;
+  onVoiceToggle?: (val: boolean) => void;
 }
 
-const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandled }) => {
+const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandled, isVoiceEnabled = true, onVoiceToggle }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isWhatsAppMode, setIsWhatsAppMode] = useState(false);
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [isLiveActive, setIsLiveActive] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'model', text: 'Welcome to Coolfix Air. I am your automated engineering assistant. How can I help you optimize your connectivity today?' }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isGreetingPlayed, setIsGreetingPlayed] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioContextOutRef = useRef<AudioContext | null>(null);
@@ -34,6 +36,7 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
     }
   }, [messages, isTyping]);
 
+  // Handle external triggers (e.g. plan selection from App.tsx)
   useEffect(() => {
     if (externalQuery) {
       setIsOpen(true);
@@ -44,6 +47,27 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
       if (onQueryHandled) onQueryHandled();
     }
   }, [externalQuery]);
+
+  // Handle initial greeting speech when first opened
+  useEffect(() => {
+    if (isOpen && !isGreetingPlayed && isVoiceEnabled) {
+      const greeting = messages.find(m => m.role === 'model')?.text;
+      if (greeting) {
+        playSpeech(greeting);
+        setIsGreetingPlayed(true);
+      }
+    }
+  }, [isOpen, isVoiceEnabled, isGreetingPlayed]);
+
+  // Global voice toggle stop
+  useEffect(() => {
+    if (!isVoiceEnabled && currentVoiceSourceRef.current) {
+      try {
+        currentVoiceSourceRef.current.stop();
+        currentVoiceSourceRef.current = null;
+      } catch (e) {}
+    }
+  }, [isVoiceEnabled]);
 
   const initAudio = () => {
     if (!audioContextOutRef.current) {
@@ -62,7 +86,10 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
 
     // Stop any currently playing speech to avoid overlap
     if (currentVoiceSourceRef.current) {
-      try { currentVoiceSourceRef.current.stop(); } catch(e) {}
+      try {
+        currentVoiceSourceRef.current.stop();
+        currentVoiceSourceRef.current = null;
+      } catch(e) {}
     }
 
     const base64Audio = await generateSpeech(text);
@@ -77,6 +104,11 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
       source.connect(ctx.destination);
       source.start();
       currentVoiceSourceRef.current = source;
+      source.onended = () => {
+        if (currentVoiceSourceRef.current === source) {
+          currentVoiceSourceRef.current = null;
+        }
+      };
     } catch (err) {
       console.error("Audio Playback Error:", err);
     }
@@ -164,9 +196,12 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
     const messageToSend = text || input;
     if (!messageToSend.trim()) return;
 
-    const userMsg: ChatMessage = { role: 'user', text: messageToSend };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
+    if (!text) {
+      const userMsg: ChatMessage = { role: 'user', text: messageToSend };
+      setMessages(prev => [...prev, userMsg]);
+      setInput('');
+    }
+    
     setIsTyping(true);
 
     const botResponse = await getAirAssistantResponse(messages, messageToSend);
@@ -174,7 +209,8 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
     setIsTyping(false);
     setMessages(prev => [...prev, { role: 'model', text: botResponse }]);
     
-    if (botResponse) {
+    // Auto-trigger TTS if enabled
+    if (botResponse && isVoiceEnabled) {
       playSpeech(botResponse);
     }
   };
@@ -198,7 +234,7 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
             </div>
             <div className="flex items-center space-x-2">
               <button 
-                onClick={() => { initAudio(); setIsVoiceEnabled(!isVoiceEnabled); }}
+                onClick={() => { initAudio(); onVoiceToggle?.(!isVoiceEnabled); }}
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isVoiceEnabled ? 'bg-white/20 text-white' : 'bg-black/20 text-white/40'}`}
                 title={isVoiceEnabled ? "Mute" : "Unmute"}
               >
@@ -234,7 +270,7 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
               </div>
             ) : (
               <>
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-950/20">
                   {messages.map((m, i) => (
                     <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
                       <div className={`max-w-[85%] p-4 rounded-3xl text-[13px] leading-relaxed shadow-sm ${
@@ -248,38 +284,38 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
                   ))}
                   {isTyping && (
                     <div className="flex justify-start">
-                      <div className="bg-slate-800/80 p-4 rounded-3xl rounded-tl-none border border-white/5 flex space-x-1.5">
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                      <div className="bg-slate-800/80 p-4 rounded-3xl rounded-tl-none border border-white/5 flex gap-1">
+                        <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce"></div>
+                        <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce delay-150"></div>
+                        <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce delay-300"></div>
                       </div>
                     </div>
                   )}
                 </div>
-                <div className="p-6 bg-slate-900/80 backdrop-blur-md border-t border-white/5">
-                  <div className="flex gap-4 items-center">
+
+                <div className="p-6 bg-slate-900 border-t border-white/5">
+                  <div className="flex items-center gap-3">
                     <button 
                       onClick={startLiveSession}
-                      className="w-14 h-14 bg-slate-800 border border-white/5 rounded-2xl flex items-center justify-center text-cyan-400 hover:bg-cyan-600 hover:text-white transition-all shadow-inner"
-                      title="Start Live Call"
+                      className="w-12 h-12 bg-white/5 hover:bg-cyan-600/20 text-cyan-400 rounded-2xl flex items-center justify-center transition-all border border-white/5 group"
+                      title="Start Live Voice Session"
                     >
-                      <i className="fa-solid fa-phone-plus"></i>
+                      <i className="fa-solid fa-microphone group-hover:scale-110 transition-transform"></i>
                     </button>
-                    <div className="relative flex-1 group">
-                      <input
-                        type="text"
+                    <div className="flex-1 relative">
+                      <input 
+                        type="text" 
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="Type message..."
-                        className="w-full bg-slate-800 border border-white/5 rounded-2xl py-4 pl-5 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-white transition-all placeholder:text-slate-500 font-medium shadow-inner"
+                        onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                        placeholder="Type engineering request..." 
+                        className="w-full bg-slate-950/50 border border-white/5 rounded-2xl py-4 px-6 pr-12 outline-none font-medium text-sm focus:border-cyan-500/50 transition-all text-white shadow-inner"
                       />
                       <button 
                         onClick={() => handleSend()}
-                        disabled={!input.trim() || isTyping}
-                        className="absolute right-2 top-2 bottom-2 aspect-square bg-cyan-600 hover:bg-cyan-500 disabled:opacity-30 text-white rounded-xl flex items-center justify-center transition-all active:scale-90"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-cyan-500 hover:text-cyan-400 transition-colors"
                       >
-                        <i className="fa-solid fa-paper-plane-top"></i>
+                        <i className="fa-solid fa-paper-plane"></i>
                       </button>
                     </div>
                   </div>
@@ -287,26 +323,19 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
               </>
             )}
           </div>
-          <div className="px-6 py-2 bg-slate-900 border-t border-white/5 text-center">
-            <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.3em]">Encrypted Session (AES-256)</p>
-          </div>
         </div>
       )}
 
-      <button
-        onClick={() => { setIsOpen(!isOpen); if (isOpen) stopLiveSession(); }}
-        className={`w-20 h-20 rounded-[2.5rem] shadow-[0_20px_50px_-10px_rgba(6,182,212,0.5)] flex items-center justify-center text-white text-3xl hover:scale-105 active:scale-95 transition-all group relative overflow-hidden ${
-          isOpen ? 'bg-slate-800 rotate-180' : 'bg-gradient-to-br from-cyan-500 to-blue-600'
+      <button 
+        onClick={() => { setIsOpen(!isOpen); initAudio(); }}
+        className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-3xl shadow-3xl transition-all active:scale-90 group relative ${
+          isOpen ? 'bg-slate-800 text-white rotate-180' : 'bg-cyan-600 text-white hover:bg-cyan-500'
         }`}
       >
-        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        <i className={`fa-solid ${isOpen ? 'fa-xmark' : 'fa-robot'}`}></i>
-        {!isOpen && (
-          <span className="absolute top-4 right-4 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-          </span>
-        )}
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full border-4 border-slate-950 flex items-center justify-center animate-pulse">
+           <div className="w-2 h-2 bg-white rounded-full"></div>
+        </div>
+        <i className={`fa-solid ${isOpen ? 'fa-chevron-down' : 'fa-robot'} group-hover:scale-110 transition-transform`}></i>
       </button>
     </div>
   );

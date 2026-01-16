@@ -37,4 +37,4 @@ export interface Transaction {
   description: string;
 }
 
-export type AppView = 'home' | 'portal' | 'residential' | 'networking' | 'consulting' | 'contact';
+export type AppView = 'home' | 'portal' | 'residential' | 'networking' | 'consulting' | 'tracking' | 'contact';
