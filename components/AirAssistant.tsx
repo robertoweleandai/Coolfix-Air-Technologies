@@ -4,6 +4,8 @@ import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { ChatMessage } from '../types';
 import { getAirAssistantResponse, generateSpeech, decode, encode, decodeAudioData } from '../services/geminiService';
 
+const WHATSAPP_NUMBER = "254712156070";
+
 interface AirAssistantProps {
   externalQuery?: string | null;
   onQueryHandled?: () => void;
@@ -16,11 +18,12 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
   const [isWhatsAppMode, setIsWhatsAppMode] = useState(false);
   const [isLiveActive, setIsLiveActive] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: 'Welcome to Coolfix Air. I am your automated engineering assistant. How can I help you optimize your connectivity today?' }
+    { role: 'model', text: 'Centipid Node Online. I am the Cooolfix Automated Gateway. Initialize your request by providing your sector location and requested throughput tier.' }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isGreetingPlayed, setIsGreetingPlayed] = useState(false);
+  const [shieldActive, setShieldActive] = useState(true);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioContextOutRef = useRef<AudioContext | null>(null);
@@ -30,25 +33,28 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
   const sourcesRef = useRef(new Set<AudioBufferSourceNode>());
   const currentVoiceSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
+  const quickActions = [
+    { label: "📍 Coverage Scan", query: "Run coverage scan for my sector." },
+    { label: "🔧 Node Fault", query: "Report technical node fault." },
+    { label: "💳 Uplink Credit", query: "I need to renew my internet provisioning." },
+    { label: "🚀 High-Fidelity Tiers", query: "Provide details on premium fiber tiers." }
+  ];
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
 
-  // Handle external triggers (e.g. plan selection from App.tsx)
   useEffect(() => {
     if (externalQuery) {
       setIsOpen(true);
-      if (externalQuery.includes('WhatsApp')) {
-        setIsWhatsAppMode(true);
-      }
+      setIsWhatsAppMode(externalQuery.includes('WhatsApp'));
       handleSend(externalQuery);
       if (onQueryHandled) onQueryHandled();
     }
   }, [externalQuery]);
 
-  // Handle initial greeting speech when first opened
   useEffect(() => {
     if (isOpen && !isGreetingPlayed && isVoiceEnabled) {
       const greeting = messages.find(m => m.role === 'model')?.text;
@@ -59,7 +65,6 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
     }
   }, [isOpen, isVoiceEnabled, isGreetingPlayed]);
 
-  // Global voice toggle stop
   useEffect(() => {
     if (!isVoiceEnabled && currentVoiceSourceRef.current) {
       try {
@@ -80,11 +85,9 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
 
   const playSpeech = async (text: string) => {
     if (!isVoiceEnabled || isLiveActive) return;
-    
     initAudio();
     const ctx = audioContextOutRef.current!;
 
-    // Stop any currently playing speech to avoid overlap
     if (currentVoiceSourceRef.current) {
       try {
         currentVoiceSourceRef.current.stop();
@@ -98,17 +101,11 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
     try {
       const audioBytes = decode(base64Audio);
       const audioBuffer = await decodeAudioData(audioBytes, ctx);
-      
       const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(ctx.destination);
       source.start();
       currentVoiceSourceRef.current = source;
-      source.onended = () => {
-        if (currentVoiceSourceRef.current === source) {
-          currentVoiceSourceRef.current = null;
-        }
-      };
     } catch (err) {
       console.error("Audio Playback Error:", err);
     }
@@ -118,7 +115,6 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
     initAudio();
     setIsLiveActive(true);
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
     audioContextInRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -156,24 +152,15 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
             source.start(nextStartTimeRef.current);
             nextStartTimeRef.current += audioBuffer.duration;
             sourcesRef.current.add(source);
-            source.onended = () => sourcesRef.current.delete(source);
-          }
-          if (message.serverContent?.interrupted) {
-            sourcesRef.current.forEach(s => { try { s.stop(); } catch(e) {} });
-            sourcesRef.current.clear();
-            nextStartTimeRef.current = 0;
           }
         },
         onclose: () => stopLiveSession(),
-        onerror: (e) => {
-          console.error("Live Session Error:", e);
-          stopLiveSession();
-        },
+        onerror: () => stopLiveSession(),
       },
       config: {
         responseModalities: [Modality.AUDIO],
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Zephyr' } } },
-        systemInstruction: "You are the Air Assistant for Coolfix Air Technologies. You are speaking live with a customer. Be helpful, professional, and efficient. Focus on Cloud Networking, IT Services and ISP support.",
+        systemInstruction: "You are the Air Assistant for Cooolfix Air Technologies. You are triaging a live customer voice request. Use elite engineering terminology.",
       }
     });
 
@@ -182,14 +169,7 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
 
   const stopLiveSession = () => {
     setIsLiveActive(false);
-    if (liveSessionRef.current) {
-      try { liveSessionRef.current.close(); } catch(e) {}
-    }
-    if (audioContextInRef.current) {
-      try { audioContextInRef.current.close(); } catch(e) {}
-    }
-    sourcesRef.current.forEach(s => { try { s.stop(); } catch(e) {} });
-    sourcesRef.current.clear();
+    if (liveSessionRef.current) liveSessionRef.current.close();
   };
 
   const handleSend = async (text?: string) => {
@@ -197,145 +177,158 @@ const AirAssistant: React.FC<AirAssistantProps> = ({ externalQuery, onQueryHandl
     if (!messageToSend.trim()) return;
 
     if (!text) {
-      const userMsg: ChatMessage = { role: 'user', text: messageToSend };
-      setMessages(prev => [...prev, userMsg]);
+      setMessages(prev => [...prev, { role: 'user', text: messageToSend }]);
       setInput('');
     }
     
     setIsTyping(true);
-
     const botResponse = await getAirAssistantResponse(messages, messageToSend);
-    
     setIsTyping(false);
     setMessages(prev => [...prev, { role: 'model', text: botResponse }]);
-    
-    // Auto-trigger TTS if enabled
-    if (botResponse && isVoiceEnabled) {
-      playSpeech(botResponse);
-    }
+    if (isVoiceEnabled) playSpeech(botResponse);
+  };
+
+  const escalateToWhatsApp = () => {
+    const chatSummary = messages.map(m => `${m.role === 'user' ? 'CLIENT' : 'NODE'}: ${m.text}`).join('\n');
+    const msg = `COOOLFIX GATEWAY COMMAND SUMMARY:\n${chatSummary}\n\nREQUESTING FIELD ENGINEER FOR DEPLOYMENT FINALIZATION.`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
   };
 
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end">
       {isOpen && (
-        <div className="mb-6 w-[380px] sm:w-[420px] h-[600px] bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden glass-effect animate-in slide-in-from-bottom-12 duration-500">
-          <div className={`p-6 bg-gradient-to-r flex justify-between items-center ${isWhatsAppMode ? 'from-emerald-600 to-teal-700' : 'from-cyan-600 via-blue-700 to-indigo-800'}`}>
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shadow-lg">
-                <i className={`fa-solid ${isWhatsAppMode ? 'fa-brands fa-whatsapp' : 'fa-robot'} text-white text-xl`}></i>
+        <div className="mb-6 w-[380px] sm:w-[440px] h-[680px] bg-slate-900 border border-white/10 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden glass-effect animate-in slide-in-from-bottom-12 duration-500">
+          {/* Brand Header */}
+          <div className={`p-8 bg-gradient-to-br flex flex-col gap-6 ${isWhatsAppMode ? 'from-emerald-600/90 to-teal-800/90' : 'from-slate-800 via-slate-900 to-black'}`}>
+            <div className="flex justify-between items-start">
+              <div className="flex items-center space-x-5">
+                <div className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-[1.25rem] flex items-center justify-center shadow-2xl border border-white/20 relative group">
+                  <div className="absolute inset-0 bg-cyan-500/20 rounded-[1.25rem] animate-pulse group-hover:bg-cyan-500/40 transition-all"></div>
+                  <i className={`fa-solid ${isWhatsAppMode ? 'fa-brands fa-whatsapp' : 'fa-tower-broadcast'} text-white text-2xl z-10`}></i>
+                </div>
+                <div>
+                  <h3 className="font-black text-white text-lg tracking-tighter uppercase leading-none">Cooolfix Air</h3>
+                  <p className="text-[10px] text-cyan-400 font-black uppercase tracking-[0.4em] mt-2 flex items-center">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+                    Gateway Online
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-black text-white text-sm tracking-tight">{isWhatsAppMode ? 'WhatsApp Gateway' : 'Air Assistant'}</p>
-                <p className="text-[10px] text-cyan-200 font-bold uppercase tracking-widest flex items-center">
-                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
-                  {isLiveActive ? 'Live Voice Session' : 'Automated Agent'}
-                </p>
+              <div className="flex items-center space-x-3">
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${shieldActive ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400'}`}>
+                   <i className={`fa-solid ${shieldActive ? 'fa-shield-halved' : 'fa-triangle-exclamation'} text-[8px]`}></i>
+                   <span className="text-[8px] font-black uppercase tracking-widest">{shieldActive ? 'Shield Active' : 'Shield Alert'}</span>
+                </div>
+                <button onClick={() => { setIsOpen(false); stopLiveSession(); }} className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center text-white/60 hover:text-white transition-all">
+                  <i className="fa-solid fa-chevron-down"></i>
+                </button>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <button 
-                onClick={() => { initAudio(); onVoiceToggle?.(!isVoiceEnabled); }}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isVoiceEnabled ? 'bg-white/20 text-white' : 'bg-black/20 text-white/40'}`}
-                title={isVoiceEnabled ? "Mute" : "Unmute"}
-              >
-                <i className={`fa-solid ${isVoiceEnabled ? 'fa-volume-high' : 'fa-volume-xmark'}`}></i>
-              </button>
-              <button onClick={() => { setIsOpen(false); stopLiveSession(); }} className="w-10 h-10 rounded-full bg-black/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/20 transition-all">
-                <i className="fa-solid fa-chevron-down"></i>
-              </button>
+
+            {/* Backbone Status Bar */}
+            <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-[0.2em] text-white/40 border-t border-white/5 pt-4">
+               <span>Pkt loss: 0.00%</span>
+               <span className="text-cyan-500/60">Lat: 14ms</span>
+               <span>Uplink: Synchronized</span>
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col overflow-hidden relative">
-            {isLiveActive ? (
-              <div className="flex-1 flex flex-col items-center justify-center space-y-12 p-8 animate-in fade-in zoom-in duration-500">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-cyan-500/20 rounded-full animate-ping scale-150 opacity-20"></div>
-                  <div className="absolute inset-0 bg-cyan-500/10 rounded-full animate-ping scale-125 opacity-40 delay-300"></div>
-                  <div className="w-48 h-48 bg-gradient-to-br from-cyan-600 to-blue-700 rounded-full flex items-center justify-center shadow-2xl relative z-10">
-                    <i className="fa-solid fa-microphone text-white text-5xl"></i>
+          <div className="flex-1 flex flex-col overflow-hidden relative bg-slate-950/40">
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+              {messages.map((m, i) => (
+                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}>
+                  <div className={`max-w-[88%] p-5 rounded-[2rem] text-[13px] leading-relaxed shadow-lg ${
+                    m.role === 'user' 
+                    ? 'bg-cyan-600 text-white rounded-tr-none font-bold' 
+                    : 'bg-slate-800/90 text-slate-200 rounded-tl-none border border-white/10 font-medium'
+                  }`}>
+                    {m.text}
                   </div>
                 </div>
-                <div className="text-center space-y-4">
-                  <h4 className="text-2xl font-black text-white">Live Voice Connection</h4>
-                  <p className="text-slate-400 text-sm font-medium">Listening to your engineering request...</p>
+              ))}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-slate-800/90 p-5 rounded-[2rem] rounded-tl-none border border-white/10 flex gap-2">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce delay-150"></div>
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce delay-300"></div>
+                  </div>
                 </div>
-                <button 
-                  onClick={stopLiveSession}
-                  className="px-10 py-5 bg-rose-600 hover:bg-rose-500 text-white rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl transition-all flex items-center gap-3"
-                >
-                  <i className="fa-solid fa-phone-slash"></i>
-                  End Live Session
-                </button>
-              </div>
-            ) : (
-              <>
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-950/20">
-                  {messages.map((m, i) => (
-                    <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2`}>
-                      <div className={`max-w-[85%] p-4 rounded-3xl text-[13px] leading-relaxed shadow-sm ${
-                        m.role === 'user' 
-                        ? 'bg-cyan-600 text-white rounded-tr-none font-medium' 
-                        : 'bg-slate-800/80 text-slate-200 rounded-tl-none border border-white/5 font-medium'
-                      }`}>
-                        {m.text}
-                      </div>
-                    </div>
-                  ))}
-                  {isTyping && (
-                    <div className="flex justify-start">
-                      <div className="bg-slate-800/80 p-4 rounded-3xl rounded-tl-none border border-white/5 flex gap-1">
-                        <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce"></div>
-                        <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce delay-150"></div>
-                        <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce delay-300"></div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              )}
+            </div>
 
-                <div className="p-6 bg-slate-900 border-t border-white/5">
-                  <div className="flex items-center gap-3">
-                    <button 
-                      onClick={startLiveSession}
-                      className="w-12 h-12 bg-white/5 hover:bg-cyan-600/20 text-cyan-400 rounded-2xl flex items-center justify-center transition-all border border-white/5 group"
-                      title="Start Live Voice Session"
-                    >
-                      <i className="fa-solid fa-microphone group-hover:scale-110 transition-transform"></i>
-                    </button>
-                    <div className="flex-1 relative">
-                      <input 
-                        type="text" 
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="Type engineering request..." 
-                        className="w-full bg-slate-950/50 border border-white/5 rounded-2xl py-4 px-6 pr-12 outline-none font-medium text-sm focus:border-cyan-500/50 transition-all text-white shadow-inner"
-                      />
-                      <button 
-                        onClick={() => handleSend()}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-cyan-500 hover:text-cyan-400 transition-colors"
-                      >
-                        <i className="fa-solid fa-paper-plane"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </>
+            {/* Quick Actions as "Command Modules" */}
+            {!isTyping && (
+              <div className="px-8 py-4 flex flex-wrap gap-3 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                {quickActions.map((action, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSend(action.query)}
+                    className="px-5 py-3 bg-slate-900 hover:bg-slate-800 border border-white/5 hover:border-cyan-500/50 rounded-2xl text-[9px] font-black text-slate-400 hover:text-cyan-400 uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-xl flex items-center gap-3"
+                  >
+                    <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full opacity-40"></div>
+                    {action.label}
+                  </button>
+                ))}
+              </div>
             )}
+
+            <div className="p-8 bg-slate-900/80 border-t border-white/5 space-y-6 backdrop-blur-xl">
+              {isWhatsAppMode && (
+                <button 
+                  onClick={escalateToWhatsApp}
+                  className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black uppercase text-xs tracking-[0.3em] transition-all flex items-center justify-center gap-4 shadow-[0_20px_40px_-10px_rgba(16,185,129,0.5)] active:scale-95 motion-btn-shimmer"
+                >
+                  <i className="fa-solid fa-satellite-dish animate-pulse text-lg"></i>
+                  Handshake Field Engineer
+                </button>
+              )}
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={startLiveSession} 
+                  className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all border shadow-inner ${isLiveActive ? 'bg-rose-600 text-white border-rose-400 animate-pulse' : 'bg-white/5 hover:bg-cyan-600/20 text-cyan-400 border-white/10'}`}
+                  title="Live Voice Triage"
+                >
+                  <i className={`fa-solid ${isLiveActive ? 'fa-phone-slash' : 'fa-microphone'} text-xl`}></i>
+                </button>
+                <div className="flex-1 relative group">
+                  <input 
+                    type="text" 
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                    placeholder="Enter command sequence..." 
+                    className="w-full bg-slate-950/80 border border-white/10 rounded-[1.25rem] py-5 px-8 outline-none font-bold text-sm text-white shadow-2xl focus:border-cyan-500/60 transition-all placeholder:text-slate-600"
+                  />
+                  <button 
+                    disabled={!input.trim()}
+                    onClick={() => handleSend()}
+                    className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-cyan-500 hover:text-cyan-400 transition-all disabled:opacity-20"
+                  >
+                    <i className="fa-solid fa-paper-plane text-xl"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Main Toggle Button */}
       <button 
-        onClick={() => { setIsOpen(!isOpen); initAudio(); }}
-        className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-3xl shadow-3xl transition-all active:scale-90 group relative ${
-          isOpen ? 'bg-slate-800 text-white rotate-180' : 'bg-cyan-600 text-white hover:bg-cyan-500'
+        onClick={() => { setIsOpen(!isOpen); initAudio(); }} 
+        className={`w-24 h-24 rounded-[2.5rem] flex items-center justify-center text-4xl shadow-3xl transition-all active:scale-90 group relative overflow-hidden ${
+          isOpen 
+          ? 'bg-slate-800 text-white rotate-180 shadow-[0_0_50px_rgba(0,0,0,0.5)]' 
+          : 'bg-cyan-600 text-white hover:bg-cyan-500 shadow-[0_20px_50px_rgba(6,182,212,0.4)]'
         }`}
       >
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full border-4 border-slate-950 flex items-center justify-center animate-pulse">
-           <div className="w-2 h-2 bg-white rounded-full"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="absolute -top-3 -right-3 w-8 h-8 bg-emerald-500 rounded-full border-4 border-slate-950 flex items-center justify-center z-20 animate-pulse">
+          <div className="w-2 h-2 bg-white rounded-full"></div>
         </div>
-        <i className={`fa-solid ${isOpen ? 'fa-chevron-down' : 'fa-robot'} group-hover:scale-110 transition-transform`}></i>
+        <i className={`fa-solid ${isOpen ? 'fa-chevron-down' : 'fa-robot'} group-hover:scale-110 transition-transform z-10`}></i>
       </button>
     </div>
   );

@@ -13,15 +13,15 @@ export const FIBER_PACKAGES: InternetPackage[] = [
 ];
 
 export const HOTSPOT_PACKAGES: InternetPackage[] = [
-  { id: 'hs-kumi', name: 'Kumi Unlimited', price: 10, speed: '', duration: '1 Hour', type: 'Hotspot', devices: 2, color: 'slate', features: ['Unlimited 2 Devices', 'Instant Activation', 'Shield Protected'] },
-  { id: 'hs-mbao', name: 'Mbao Unlimited', price: 20, speed: '', duration: '2.5 Hours', type: 'Hotspot', devices: 2, color: 'emerald', features: ['Unlimited Access', '2 Devices', 'Shield Protected'] },
-  { id: 'hs-chuani', name: 'Chuani Unlimited', price: 50, speed: '', duration: '8 Hours', type: 'Hotspot', devices: 3, color: 'blue', features: ['Unlimited 3 Devices', 'Instant Activation', 'Shield Protected'] },
-  { id: 'hs-daily', name: 'Daily Unlimited', price: 80, speed: '', duration: '1 Day', type: 'Hotspot', devices: 3, color: 'cyan', features: ['24 Hour Access', '3 Devices', 'Shield Protected'] },
-  { id: 'hs-weekly-solo', name: 'Weekly Solo', price: 280, speed: '', duration: '7 Days', type: 'Hotspot', devices: 1, color: 'indigo', features: ['Solo Account', '7 Day Access', 'Shield Protected'] },
-  { id: 'hs-weekly-duo', name: 'Weekly Duo', price: 380, speed: '', duration: '7 Days', type: 'Hotspot', devices: 2, color: 'violet', features: ['Dual Account', '7 Day Access', 'Shield Protected'] },
-  { id: 'hs-weekly-trio', name: 'Weekly Trio', price: 400, speed: '', duration: '7 Days', type: 'Hotspot', devices: 3, color: 'rose', isPopular: true, features: ['Trio Account', '7 Day Access', 'Shield Protected'] },
-  { id: 'hs-biweekly', name: 'Bi-Weekly Unlimited', price: 550, speed: '', duration: '14 Days', type: 'Hotspot', devices: 3, color: 'amber', features: ['14 Day Access', '3 Devices', 'Shield Protected'] },
-  { id: 'hs-monthly-solo', name: 'Monthly Solo', price: 1000, speed: '', duration: '1 Month', type: 'Hotspot', devices: 1, color: 'fuchsia', features: ['Monthly Account', 'Solo User', 'Shield Protected'] },
+  { id: 'hs-kumi', name: 'Kumi, Unlimited 2 Devices', price: 10, speed: '', duration: '1 Hour', type: 'Hotspot', devices: 2, color: 'slate', features: ['Unlimited Access', '2 Devices', 'Shield Protected'] },
+  { id: 'hs-mbao', name: 'Mbao, 2 Hours 30 mins', price: 20, speed: '', duration: '2 Hours 30 Minutes', type: 'Hotspot', devices: 2, color: 'emerald', features: ['2.5 Hour Access', '2 Devices', 'Shield Protected'] },
+  { id: 'hs-chuani', name: 'Chuani, 8 Hour Unlimited', price: 50, speed: '', duration: '8 Hours', type: 'Hotspot', devices: 3, color: 'blue', features: ['8 Hour Unlimited', '3 Devices', 'Shield Protected'] },
+  { id: 'hs-daily', name: 'DAILY Unlimited Internet', price: 80, speed: '', duration: '1 Day', type: 'Hotspot', devices: 3, color: 'cyan', isPopular: true, features: ['24 Hour Access', '3 Devices', 'Shield Protected'] },
+  { id: 'hs-weekly-solo', name: 'WEEKLY SOLO Unlimited', price: 280, speed: '', duration: '7 Days', type: 'Hotspot', devices: 1, color: 'indigo', features: ['Solo Unlimited', '7 Day Access', 'Shield Protected'] },
+  { id: 'hs-weekly-trio', name: 'WEEKLY TRIO Unlimited', price: 400, speed: '', duration: '7 Days', type: 'Hotspot', devices: 3, color: 'rose', features: ['Trio Unlimited', '7 Day Access', 'Shield Protected'] },
+  { id: 'hs-weekly-duo', name: 'WEEKLY DUO Unlimited', price: 380, speed: '', duration: '7 Days', type: 'Hotspot', devices: 2, color: 'violet', features: ['Duo Unlimited', '7 Day Access', 'Shield Protected'] },
+  { id: 'hs-monthly-solo', name: 'MONTHLY SOLO Unlimited', price: 1000, speed: '', duration: '1 Month', type: 'Hotspot', devices: 1, color: 'fuchsia', features: ['Monthly Solo Unlimited', '1 Month Access', 'Shield Protected'] },
+  { id: 'hs-biweekly', name: 'Bi-Weekly, Unlimited', price: 550, speed: '', duration: '14 Days', type: 'Hotspot', devices: 3, color: 'amber', features: ['14 Day Access', '3 Devices', 'Shield Protected'] },
 ];
 
 export const NETWORKING_SERVICES = [

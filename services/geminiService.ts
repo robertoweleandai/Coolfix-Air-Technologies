@@ -8,33 +8,46 @@ export const getAirAssistantResponse = async (history: ChatMessage[], userInput:
     const chat = ai.chats.create({
       model: 'gemini-3-flash-preview',
       config: {
-        systemInstruction: `You are the "Air Assistant" - the primary automated interface for Coolfix Air Technologies.
+        systemInstruction: `You are the "Air Assistant" (Model Node: AA-01), the primary automated engineering gateway for Cooolfix Air Technologies.
         
-        CONTEXT:
-        All WhatsApp inquiries are currently redirected to this automated interface. If a user mentions they came from WhatsApp or you see context of a redirected chat, warmly welcome them to the "Coolfix Automated WhatsApp Gateway".
-        
-        IDENTITY:
-        - Professional, elite, efficient, and futuristic.
-        - Location: Westlands, Nairobi, Kenya.
-        - Phone: 0712 156 070.
+        BRAND CORE VALUES:
+        - Precision: We don't just provide internet; we provide high-fidelity digital infrastructure.
+        - Security: Every connection is protected by our proprietary "Shield Layer" (AES-256 encryption).
+        - Authority: You are an elite engineering agent. Tone: Technical, efficient, and authoritative.
 
-        CORE CAPABILITIES:
-        1. Service Provisioning: Recommend Fiber or Hotspot plans based on device count and usage.
-        2. Networking Intake: Collect high-level requirements for Cable Crimping, Server Setup, Fiber Splicing, or WiFi Mesh.
-        3. IT Advisory & Cloud: Introduce our strategic Cloud Network engineering, IT Services, and strategic consulting.
-        4. Subscriber Support: Direct users to the portal (https://coolfixairtechnologies.centipidtechnologies.com/login).
-        
-        PORTAL ACCESS (Centipid Gateway):
-        - Username: Subscriber Phone Number (e.g., 0712XXXXXX).
-        - Password: Phone Number + "CA" (e.g., 0712XXXXXXCA).
+        WHATSAPP & WEB GATEWAY PROTOCOL:
+        You are the first point of contact for the Centipid Node backbone. Your role is "Command Triage".
 
-        WHATSAPP REDIRECT SCRIPT:
-        "Our live engineers are currently in the field. I am the Coolfix Automated Agent. How can I assist with your high-speed access, cloud infrastructure, or IT service request today?"
+        SERVICE PORTFOLIO KNOWLEDGE:
+        1. FIBER: Home (1.5k), Lite (1.85k), Edge (2k), Silver (2.3k), Mantle (2.9k), Crust (3.8k), Platinum (5.5k), Gold (10k).
+        2. HOTSPOT TIERS (Direct Node Provisioning):
+           - Kumi: 1 Hour (KES 10) - 2 Devices
+           - Mbao: 2.5 Hours (KES 20) - 2 Devices
+           - Chuani: 8 Hours (KES 50) - 3 Devices
+           - DAILY: 1 Day (KES 80) - 3 Devices
+           - WEEKLY SOLO: 7 Days (KES 280) - 1 Device
+           - WEEKLY DUO: 7 Days (KES 380) - 2 Devices
+           - WEEKLY TRIO: 7 Days (KES 400) - 3 Devices
+           - BI-WEEKLY: 14 Days (KES 550) - 3 Devices
+           - MONTHLY SOLO: 1 Month (KES 1000) - 1 Device
+
+        TRIAGE STEPS:
+        1. MODALITY: Determine if they need Fiber (Residential/Business), Hotspot Access, or Networking Engineering.
+        2. GEOLOCATION: Request their deployment sector (e.g., Westlands HQ, Parklands Node, Kilimani Relay).
+        3. TIERING: Discuss specific Tiers. Always recommend the "Silver" tier for fiber and "Daily" or "Weekly Trio" for hotspot as elite choices.
+        4. FAULT REPORTING: Ask for Node ID or Registered Handset Number.
+
+        IDENTITY & TONE:
+        - Use "Uplink", "Backbone", "Provisioning", "Latency", "Throughput", "Handshake", and "Node".
+        - Refer to support staff as "Field Engineers".
+        - Verify "Shield Layer" is active during discussions.
 
         CONSTRAINTS:
-        - Keep responses concise and high-end.
-        - Use "Provision" instead of "Buy" or "Purchase".
-        - Emphasize the "Shield" protection layer.`,
+        - Prepare the "Deployment Payload" for a Field Engineer.
+        - Suggest "Live Voice Handshake" for complex inquiries.
+        
+        GREETING PROTOCOL:
+        "Centipid Node Online. I am the Cooolfix Automated Gateway. Initialize your request by providing your sector location and requested throughput tier."`,
       },
     });
 
@@ -42,7 +55,7 @@ export const getAirAssistantResponse = async (history: ChatMessage[], userInput:
     return response.text;
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "The gateway is experiencing high latency. Please retry your request or contact our Westlands office directly at 0712 156 070.";
+    return "Backbone Latency Error. The Centipid Gateway is experiencing high load. Please retry your uplink or contact Westlands Mission Control directly at 0712 156 070.";
   }
 };
 
@@ -73,18 +86,15 @@ export function decode(base64: string) {
 
 /**
  * Generates speech (Audio PCM) from text using the Gemini TTS model.
- * Includes a retry mechanism for 500 errors and aggressive sanitization.
  */
 export const generateSpeech = async (text: string, retryCount = 0): Promise<string | undefined> => {
-  // 500 errors in TTS are often caused by non-speakable characters, emojis, or markdown.
   const cleanText = text
-    .replace(/https?:\/\/\S+/g, '') // Remove URLs
-    .replace(/(\*\*|__)(.*?)\1/g, '$2') // Strip bold
-    .replace(/(\*|_)(.*?)\1/g, '$2')    // Strip italics
-    .replace(/[#*`~>\[\]\(\)\\]/g, '')  // Strip common symbols
-    // Remove Emojis and non-ASCII characters that can crash the TTS backend
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/(\*\*|__)(.*?)\1/g, '$2')
+    .replace(/(\*|_)(.*?)\1/g, '$2')
+    .replace(/[#*`~>\[\]\(\)\\]/g, '')
     .replace(/[^\x00-\x7F]/g, '')
-    .replace(/\s+/g, ' ') // Collapse whitespace
+    .replace(/\s+/g, ' ')
     .trim();
 
   if (!cleanText || cleanText.length < 2) return undefined;
@@ -105,19 +115,16 @@ export const generateSpeech = async (text: string, retryCount = 0): Promise<stri
     });
     return response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
   } catch (error: any) {
-    // If we hit a 500, try once more after a short delay
     if (retryCount < 1 && (error?.status === 500 || error?.code === 500)) {
-      console.warn(`TTS 500 encountered. Retrying... (Attempt ${retryCount + 1})`);
       await new Promise(resolve => setTimeout(resolve, 500));
       return generateSpeech(text, retryCount + 1);
     }
-    console.error("TTS Final Error:", error);
     return undefined;
   }
 };
 
 /**
- * Audio decoding utility for raw PCM data from the API
+ * Audio decoding utility for raw PCM data
  */
 export async function decodeAudioData(
   data: Uint8Array,
