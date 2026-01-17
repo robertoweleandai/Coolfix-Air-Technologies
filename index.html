@@ -100,6 +100,14 @@
             color: #06b6d4 !important;
             border-bottom: 1px solid #1e293b !important;
         }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            animation: marquee 30s linear infinite;
+        }
     </style>
 <script type="importmap">
 {
@@ -111,8 +119,8 @@
     "recharts": "https://esm.sh/recharts@^2.12.7?external=react,react-dom",
     "leaflet": "https://esm.sh/leaflet@^1.9.4",
     "react-leaflet": "https://esm.sh/react-leaflet@^4.2.1?external=react,react-dom,leaflet",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
